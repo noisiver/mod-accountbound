@@ -50,20 +50,19 @@ class AccountBoundPlayer : public PlayerScript
                 if (factionSpellId == -1)
                 {
                     LoginDatabase.DirectExecute("REPLACE INTO account_bound (accountid, spellid, allowablerace, allowableclass, requiredlevel, "
-                                                "requiredskill, requiredskillrank, comment) VALUES ({}, {}, {}, {}, {}, {}, {}, '{}')",
+                                                "requiredskill, requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {})",
                                                 player->GetSession()->GetAccountId(),
                                                 spellID,
                                                 accountBoundSpell.AllowableRace,
                                                 accountBoundSpell.AllowableClass,
                                                 accountBoundSpell.RequiredLevel,
                                                 accountBoundSpell.RequiredSkill,
-                                                accountBoundSpell.RequiredSkillRank,
-                                                accountBoundSpell.Comment);
+                                                accountBoundSpell.RequiredSkillRank);
                     continue;
                 }
 
                 LoginDatabase.DirectExecute("REPLACE INTO account_bound (accountid, spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
-                                            "requiredskillrank, comment) VALUES ({}, {}, {}, {}, {}, {}, {}, '{}'), ({}, {}, {}, {}, {}, {}, {}, '{}')",
+                                            "requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {}), ({}, {}, {}, {}, {}, {}, {})",
                                             player->GetSession()->GetAccountId(),
                                             factionChangeSpells[factionSpellId].AllianceId,
                                             RACEMASK_ALLIANCE,
@@ -71,15 +70,13 @@ class AccountBoundPlayer : public PlayerScript
                                             accountBoundSpell.RequiredLevel,
                                             accountBoundSpell.RequiredSkill,
                                             accountBoundSpell.RequiredSkillRank,
-                                            factionChangeSpells[factionSpellId].AllianceComment,
                                             player->GetSession()->GetAccountId(),
                                             factionChangeSpells[factionSpellId].HordeId,
                                             RACEMASK_HORDE,
                                             accountBoundSpell.AllowableClass,
                                             accountBoundSpell.RequiredLevel,
                                             accountBoundSpell.RequiredSkill,
-                                            accountBoundSpell.RequiredSkillRank,
-                                            factionChangeSpells[factionSpellId].HordeComment);
+                                            accountBoundSpell.RequiredSkillRank);
             }
         }
 
@@ -144,8 +141,8 @@ class AccountBoundWorld : public WorldScript
     private:
         void LoadAccountBoundSpells()
         {
-            QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
-                                                     "requiredskillrank, comment FROM account_bound_template");
+            QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace, allowableclass, requiredlevel, "
+                                                     "requiredskill, requiredskillrank FROM account_bound_template");
 
             if (!result)
             {
@@ -166,7 +163,6 @@ class AccountBoundWorld : public WorldScript
                 accountBoundSpells[i].RequiredLevel     = fields[3].Get<int32>();
                 accountBoundSpells[i].RequiredSkill     = fields[4].Get<int32>();
                 accountBoundSpells[i].RequiredSkillRank = fields[5].Get<int32>();
-                accountBoundSpells[i].Comment           = fields[6].Get<std::string>();
 
                 i++;
             } while (result->NextRow());
@@ -176,8 +172,8 @@ class AccountBoundWorld : public WorldScript
 
         void LoadAccountBoundFactionSpells()
         {
-            QueryResult result = WorldDatabase.Query("SELECT alliance_id, alliance_comment, horde_id, horde_comment FROM player_factionchange_spells pfs "
-                                                     "LEFT OUTER JOIN account_bound_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
+            QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
+                                                     "account_bound_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
 
             if (!result)
             {
@@ -193,9 +189,7 @@ class AccountBoundWorld : public WorldScript
                 Field* fields                          = result->Fetch();
                 factionChangeSpells.push_back(FactionChangeSpells());
                 factionChangeSpells[i].AllianceId      = fields[0].Get<int32>();
-                factionChangeSpells[i].AllianceComment = fields[1].Get<std::string>();
-                factionChangeSpells[i].HordeId         = fields[2].Get<int32>();
-                factionChangeSpells[i].HordeComment    = fields[3].Get<std::string>();
+                factionChangeSpells[i].HordeId         = fields[1].Get<int32>();
 
                 i++;
             } while (result->NextRow());

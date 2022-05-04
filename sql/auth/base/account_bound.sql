@@ -6,6 +6,5 @@ CREATE TABLE IF NOT EXISTS `account_bound` (
     `requiredlevel` tinyint(3) unsigned NOT NULL,
     `requiredskill` smallint(3) unsigned NOT NULL,
     `requiredskillrank` smallint(3) unsigned NOT NULL,
-    `comment` varchar(255) NOT NULL,
     PRIMARY KEY (`accountid`,`spellid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
