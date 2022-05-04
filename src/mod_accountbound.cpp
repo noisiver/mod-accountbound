@@ -23,14 +23,6 @@ struct FactionChangeSpells
 std::vector<AccountBoundSpells> accountBoundSpells;
 std::vector<FactionChangeSpells> factionChangeSpells;
 
-enum Riding
-{
-    RIDING_APPRENTICE = 33388,
-    RIDING_JOURNEYMAN = 33391,
-    RIDING_EXPERT     = 34090,
-    RIDING_ARTISAN    = 34091
-};
-
 class AccountBoundPlayer : public PlayerScript
 {
     public:
@@ -38,9 +30,6 @@ class AccountBoundPlayer : public PlayerScript
 
         void OnLearnSpell(Player* player, uint32 spellID) override
         {
-            if (spellID == RIDING_APPRENTICE || spellID == RIDING_JOURNEYMAN || spellID == RIDING_EXPERT || spellID == RIDING_ARTISAN)
-                LearnAccountBound(player);
-
             for (auto& accountBoundSpell : accountBoundSpells)
             {
                 if (accountBoundSpell.SpellId != spellID)
