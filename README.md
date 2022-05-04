@@ -1,4 +1,10 @@
 # Account Bound
-This module aims to make mounts shared across every character on an account.
+This module aims to make mounts and companions shared across all characters of an account.
 
-I am unsure about how the check for required level and required skill will handle a larger amount of players using the feature. This is mostly a proof of concept for me. The spell itself doesn't have the values needed to handle that, but I will update this module if I manage to find a better way.
+Mounts that are specific to Alliance or Horde will be converted to the correct version of the mount whenever a character learns them.
+
+There is no way to see all mounts that the account has unless the character has the required skill, unfortunately there is no way to handle this yet. The character will automatically receive the mounts linked to their account whenever they learn the riding skills.
+
+An addon that helps the user see all their mounts may be developed in the future.
+
+**Companions are not yet implemented**
