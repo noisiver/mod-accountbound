@@ -9,15 +9,12 @@ struct AccountBoundSpells
     uint32 RequiredLevel;
     uint32 RequiredSkill;
     uint32 RequiredSkillRank;
-    std::string Comment;
 };
 
 struct FactionChangeSpells
 {
     uint32 AllianceId;
-    std::string AllianceComment;
     uint32 HordeId;
-    std::string HordeComment;
 };
 
 std::vector<AccountBoundSpells> accountBoundSpells;
