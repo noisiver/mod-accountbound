@@ -270,7 +270,7 @@ INSERT INTO `account_bound_template` (`spellid`, `allowablerace`, `allowableclas
 (66090, @AllianceRaces, @AllClasses, 40, @RidingSkill, @JourneymanRiding, 'Quel\'dorei Steed'),
 (66091, @HordeRaces, @AllClasses, 40, @RidingSkill, @JourneymanRiding, 'Sunreaver Hawkstrider'),
 (66846, @HordeRaces, @AllClasses, 40, @RidingSkill, @JourneymanRiding, 'Ochre Skeletal Warhorse'),
-(66847, @AllianceRaces, @AllClasses, 40, @RidingSkill, @JourneymanRiding, 'Striped Dawnsaber'),
+(66847, @AllianceRaces, @AllClasses, 20, @RidingSkill, @ApprenticeRiding, 'Striped Dawnsaber'),
 (66906, @AllRaces, @PaladinClass, 40, @RidingSkill, @JourneymanRiding, 'Argent Charger'),
 (67336, @AllRaces, @AllClasses, 70, @RidingSkill, @ArtisanRiding, 'Relentless Gladiator\'s Frost Wyrm'),
 (67466, @AllRaces, @AllClasses, 40, @RidingSkill, @JourneymanRiding, 'Argent Warhorse'),
