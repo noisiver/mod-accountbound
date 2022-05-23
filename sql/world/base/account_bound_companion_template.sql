@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `account_bound_companion_template`;
 CREATE TABLE `account_bound_companion_template` (
 	`spellid` INT(10) UNSIGNED NOT NULL,
-	`allowablerace` INT(10) NOT NULL,
+	`allowablerace` INT(11) NOT NULL,
 	`comment` VARCHAR(255) NOT NULL,
 	PRIMARY KEY (`spellid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
