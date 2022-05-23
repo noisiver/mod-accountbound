@@ -13,8 +13,8 @@ SET
 @ExpertRiding     := 225,
 @ArtisanRiding    := 300;
 
-DROP TABLE IF EXISTS `account_bound_template`;
-CREATE TABLE `account_bound_template` (
+DROP TABLE IF EXISTS `account_bound_mount_template`;
+CREATE TABLE `account_bound_mount_template` (
     `spellid` int(10) unsigned NOT NULL,
     `allowablerace` int(10) NOT NULL,
     `allowableclass` int(10) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE `account_bound_template` (
     PRIMARY KEY (`spellid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `account_bound_template` (`spellid`, `allowablerace`, `allowableclass`, `requiredlevel`, `requiredskill`, `requiredskillrank`, `comment`) VALUES 
+INSERT INTO `account_bound_mount_template` (`spellid`, `allowablerace`, `allowableclass`, `requiredlevel`, `requiredskill`, `requiredskillrank`, `comment`) VALUES 
 (458, @AllianceRaces, @AllClasses, 20, @RidingSkill, @ApprenticeRiding, 'Brown Horse'),
 (468, @AllianceRaces, @AllClasses, 20, @RidingSkill, @ApprenticeRiding, 'White Stallion'),
 (470, @AllianceRaces, @AllClasses, 20, @RidingSkill, @ApprenticeRiding, 'Black Stallion'),

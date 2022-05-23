@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `account_bound` (
+CREATE TABLE IF NOT EXISTS `account_bound_mount` (
     `accountid` int(10) unsigned NOT NULL,
     `spellid` mediumint(8) unsigned NOT NULL,
     `allowablerace` int(10) NOT NULL,

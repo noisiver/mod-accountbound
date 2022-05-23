@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-struct AccountBoundSpells
+struct AccountBoundMounts
 {
     uint32 SpellId;
     uint32 AllowableRace;
@@ -11,14 +11,14 @@ struct AccountBoundSpells
     uint32 RequiredSkillRank;
 };
 
-struct FactionChangeSpells
+struct FactionChangeMounts
 {
     uint32 AllianceId;
     uint32 HordeId;
 };
 
-std::vector<AccountBoundSpells> accountBoundSpells;
-std::vector<FactionChangeSpells> factionChangeSpells;
+std::vector<AccountBoundMounts> accountBoundMounts;
+std::vector<FactionChangeMounts> factionChangeMounts;
 
 class AccountBoundPlayer : public PlayerScript
 {
@@ -27,59 +27,59 @@ class AccountBoundPlayer : public PlayerScript
 
         void OnLearnSpell(Player* player, uint32 spellID) override
         {
-            for (auto& accountBoundSpell : accountBoundSpells)
+            for (auto& accountBoundMount : accountBoundMounts)
             {
-                if (accountBoundSpell.SpellId != spellID)
+                if (accountBoundMount.SpellId != spellID)
                     continue;
 
-                int factionSpellId = GetFactionChangeSpell(accountBoundSpell.SpellId);
-                if (factionSpellId == -1)
+                int factionMountSpellId = GetFactionChangeMount(accountBoundMount.SpellId);
+                if (factionMountSpellId == -1)
                 {
-                    LoginDatabase.DirectExecute("REPLACE INTO account_bound (accountid, spellid, allowablerace, allowableclass, requiredlevel, "
+                    LoginDatabase.DirectExecute("REPLACE INTO account_bound_mount (accountid, spellid, allowablerace, allowableclass, requiredlevel, "
                                                 "requiredskill, requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {})",
                                                 player->GetSession()->GetAccountId(),
                                                 spellID,
-                                                accountBoundSpell.AllowableRace,
-                                                accountBoundSpell.AllowableClass,
-                                                accountBoundSpell.RequiredLevel,
-                                                accountBoundSpell.RequiredSkill,
-                                                accountBoundSpell.RequiredSkillRank);
+                                                accountBoundMount.AllowableRace,
+                                                accountBoundMount.AllowableClass,
+                                                accountBoundMount.RequiredLevel,
+                                                accountBoundMount.RequiredSkill,
+                                                accountBoundMount.RequiredSkillRank);
                     continue;
                 }
 
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound (accountid, spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
+                LoginDatabase.DirectExecute("REPLACE INTO account_bound_mount (accountid, spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
                                             "requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {}), ({}, {}, {}, {}, {}, {}, {})",
                                             player->GetSession()->GetAccountId(),
-                                            factionChangeSpells[factionSpellId].AllianceId,
+                                            factionChangeMounts[factionMountSpellId].AllianceId,
                                             RACEMASK_ALLIANCE,
-                                            accountBoundSpell.AllowableClass,
-                                            accountBoundSpell.RequiredLevel,
-                                            accountBoundSpell.RequiredSkill,
-                                            accountBoundSpell.RequiredSkillRank,
+                                            accountBoundMount.AllowableClass,
+                                            accountBoundMount.RequiredLevel,
+                                            accountBoundMount.RequiredSkill,
+                                            accountBoundMount.RequiredSkillRank,
                                             player->GetSession()->GetAccountId(),
-                                            factionChangeSpells[factionSpellId].HordeId,
+                                            factionChangeMounts[factionMountSpellId].HordeId,
                                             RACEMASK_HORDE,
-                                            accountBoundSpell.AllowableClass,
-                                            accountBoundSpell.RequiredLevel,
-                                            accountBoundSpell.RequiredSkill,
-                                            accountBoundSpell.RequiredSkillRank);
+                                            accountBoundMount.AllowableClass,
+                                            accountBoundMount.RequiredLevel,
+                                            accountBoundMount.RequiredSkill,
+                                            accountBoundMount.RequiredSkillRank);
             }
         }
 
         void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
         {
-            LearnAccountBound(player);
+            LearnAccountBoundMounts(player);
         }
 
         void OnLogin(Player* player) override
         {
-            LearnAccountBound(player);
+            LearnAccountBoundMounts(player);
         }
 
     private:
-        void LearnAccountBound(Player* player)
+        void LearnAccountBoundMounts(Player* player)
         {
-            QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound WHERE accountid={} AND allowablerace & {} "
+            QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound_mount WHERE accountid={} AND allowablerace & {} "
                                                      "AND allowableclass & {} AND requiredlevel <= {} AND (requiredskill = 0 OR requiredskillrank <= {})",
                                                      player->GetSession()->GetAccountId(),
                                                      player->getRaceMask(),
@@ -101,11 +101,11 @@ class AccountBoundPlayer : public PlayerScript
             } while (result->NextRow());
         }
 
-        int GetFactionChangeSpell(uint32 spellId)
+        int GetFactionChangeMount(uint32 spellId)
         {
-            for (size_t i = 0; i != factionChangeSpells.size(); ++i)
+            for (size_t i = 0; i != factionChangeMounts.size(); ++i)
             {
-                if (factionChangeSpells[i].AllianceId == spellId || factionChangeSpells[i].HordeId == spellId)
+                if (factionChangeMounts[i].AllianceId == spellId || factionChangeMounts[i].HordeId == spellId)
                     return i;
             }
 
@@ -120,15 +120,15 @@ class AccountBoundWorld : public WorldScript
 
         void OnStartup() override
         {
-            LoadAccountBoundSpells();
-            LoadAccountBoundFactionSpells();
+            LoadAccountBoundMounts();
+            LoadAccountBoundFactionChangeMounts();
         }
 
     private:
-        void LoadAccountBoundSpells()
+        void LoadAccountBoundMounts()
         {
             QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace, allowableclass, requiredlevel, "
-                                                     "requiredskill, requiredskillrank FROM account_bound_template");
+                                                     "requiredskill, requiredskillrank FROM account_bound_mount_template");
 
             if (!result)
             {
@@ -136,19 +136,19 @@ class AccountBoundWorld : public WorldScript
                 return;
             }
 
-            accountBoundSpells.clear();
+            accountBoundMounts.clear();
 
             int i = 0;
             do
             {
                 Field* fields                           = result->Fetch();
-                accountBoundSpells.push_back(AccountBoundSpells());
-                accountBoundSpells[i].SpellId           = fields[0].Get<int32>();
-                accountBoundSpells[i].AllowableRace     = fields[1].Get<int32>();
-                accountBoundSpells[i].AllowableClass    = fields[2].Get<int32>();
-                accountBoundSpells[i].RequiredLevel     = fields[3].Get<int32>();
-                accountBoundSpells[i].RequiredSkill     = fields[4].Get<int32>();
-                accountBoundSpells[i].RequiredSkillRank = fields[5].Get<int32>();
+                accountBoundMounts.push_back(AccountBoundMounts());
+                accountBoundMounts[i].SpellId           = fields[0].Get<int32>();
+                accountBoundMounts[i].AllowableRace     = fields[1].Get<int32>();
+                accountBoundMounts[i].AllowableClass    = fields[2].Get<int32>();
+                accountBoundMounts[i].RequiredLevel     = fields[3].Get<int32>();
+                accountBoundMounts[i].RequiredSkill     = fields[4].Get<int32>();
+                accountBoundMounts[i].RequiredSkillRank = fields[5].Get<int32>();
 
                 i++;
             } while (result->NextRow());
@@ -156,10 +156,10 @@ class AccountBoundWorld : public WorldScript
             LOG_INFO("server.loading", ">> Loaded {} account bound spells", i);
         }
 
-        void LoadAccountBoundFactionSpells()
+        void LoadAccountBoundFactionChangeMounts()
         {
             QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
-                                                     "account_bound_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
+                                                     "account_bound_mount_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
 
             if (!result)
             {
@@ -167,15 +167,15 @@ class AccountBoundWorld : public WorldScript
                 return;
             }
 
-            factionChangeSpells.clear();
+            factionChangeMounts.clear();
 
             int i = 0;
             do
             {
                 Field* fields                          = result->Fetch();
-                factionChangeSpells.push_back(FactionChangeSpells());
-                factionChangeSpells[i].AllianceId      = fields[0].Get<int32>();
-                factionChangeSpells[i].HordeId         = fields[1].Get<int32>();
+                factionChangeMounts.push_back(FactionChangeMounts());
+                factionChangeMounts[i].AllianceId      = fields[0].Get<int32>();
+                factionChangeMounts[i].HordeId         = fields[1].Get<int32>();
 
                 i++;
             } while (result->NextRow());
