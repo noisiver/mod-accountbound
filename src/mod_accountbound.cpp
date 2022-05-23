@@ -35,21 +35,6 @@ struct FactionChangeCompanions
 std::vector<AccountBoundCompanions> accountBoundCompanions;
 std::vector<FactionChangeCompanions> factionChangeCompanions;
 
-struct AccountBoundAchievements
-{
-    uint32 AchievementId;
-    uint32 AllowableRace;
-};
-
-struct FactionChangeAchievements
-{
-    uint32 AllianceId;
-    uint32 HordeId;
-};
-
-std::vector<AccountBoundAchievements> accountBoundAchievements;
-std::vector<FactionChangeAchievements> factionChangeAchievements;
-
 class AccountBoundPlayer : public PlayerScript
 {
     public:
@@ -70,12 +55,6 @@ class AccountBoundPlayer : public PlayerScript
         {
             LearnAccountBoundMounts(player);
             LearnAccountBoundCompanions(player);
-            LearnAccountBoundAchievements(player);
-        }
-
-        void OnAchiSave(CharacterDatabaseTransaction /*trans*/, Player* player, uint16 achId, CompletedAchievementData /*achiData*/) override
-        {
-            SaveAccountBoundAchievements(player, achId);
         }
     private:
         void SaveAccountBoundMounts(Player* player, uint32 spellID)
@@ -213,64 +192,6 @@ class AccountBoundPlayer : public PlayerScript
 
             return -1;
         }
-
-        void SaveAccountBoundAchievements(Player* player, uint16 achievement)
-        {
-            for (auto& accountBoundAchievement : accountBoundAchievements)
-            {
-                if (accountBoundAchievement.AchievementId != achievement)
-                    continue;
-
-                int factionAchievementId = GetFactionChangeAchievement(accountBoundAchievement.AchievementId);
-                if (factionAchievementId == -1)
-                {
-                    LoginDatabase.DirectExecute("REPLACE INTO account_bound_achievements (accountid, achievement, allowablerace)"
-                                                "VALUES ({}, {}, {})",
-                                                player->GetSession()->GetAccountId(),
-                                                achievement,
-                                                accountBoundAchievement.AllowableRace);
-                    continue;
-                }
-
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_achievements (accountid, achievement, allowablerace) "
-                    "VALUES ({}, {}, {}), ({}, {}, {})",
-                    player->GetSession()->GetAccountId(),
-                    factionChangeAchievements[factionAchievementId].AllianceId,
-                    RACEMASK_ALLIANCE,
-                    player->GetSession()->GetAccountId(),
-                    factionChangeAchievements[factionAchievementId].HordeId,
-                    RACEMASK_HORDE);
-            }
-        }
-
-        void LearnAccountBoundAchievements(Player* player)
-        {
-            QueryResult result = LoginDatabase.Query("SELECT achievement FROM account_bound_achievements WHERE accountid={} AND allowablerace & {}",
-                                                     player->GetSession()->GetAccountId(),
-                                                     player->getRaceMask());
-
-            if (!result)
-                return;
-
-            do
-            {
-                Field* fields          = result->Fetch();
-                uint32 achievementId   = fields[0].Get<uint32>();
-
-                player->CompletedAchievement(sAchievementMgr->GetAchievement(achievementId));
-            } while (result->NextRow());
-        }
-
-        int GetFactionChangeAchievement(uint32 achievementId)
-        {
-            for (size_t i = 0; i != factionChangeAchievements.size(); ++i)
-            {
-                if (factionChangeAchievements[i].AllianceId == achievementId || factionChangeAchievements[i].HordeId == achievementId)
-                    return i;
-            }
-
-            return -1;
-        }
 };
 
 class AccountBoundWorld : public WorldScript
@@ -284,8 +205,6 @@ class AccountBoundWorld : public WorldScript
             LoadAccountBoundFactionChangeMounts();
             LoadAccountBoundCompanions();
             LoadAccountBoundFactionChangeCompanions();
-            LoadAccountBoundAchievements();
-            LoadAccountBoundFactionChangeAchievements();
         }
 
     private:
@@ -398,59 +317,6 @@ class AccountBoundWorld : public WorldScript
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} account bound faction change companion templates", i);
-        }
-
-        void LoadAccountBoundAchievements()
-        {
-            QueryResult result = WorldDatabase.Query("SELECT id, allowablerace FROM account_bound_achievement_template");
-
-            if (!result)
-            {
-                LOG_INFO("server.loading", ">> Loaded 0 account bound achievement templates");
-                return;
-            }
-
-            accountBoundAchievements.clear();
-
-            int i = 0;
-            do
-            {
-                Field* fields                             = result->Fetch();
-                accountBoundAchievements.push_back(AccountBoundAchievements());
-                accountBoundAchievements[i].AchievementId = fields[0].Get<int32>();
-                accountBoundAchievements[i].AllowableRace = fields[1].Get<int32>();
-
-                i++;
-            } while (result->NextRow());
-
-            LOG_INFO("server.loading", ">> Loaded {} account bound achievement templates", i);
-        }
-
-        void LoadAccountBoundFactionChangeAchievements()
-        {
-            QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement pfa LEFT OUTER JOIN "
-                                                     "account_bound_achievement_template abt ON pfa.alliance_id = abt.id WHERE abt.allowablerace = 1101");
-
-            if (!result)
-            {
-                LOG_INFO("server.loading", ">> Loaded 0 account bound faction change achievement templates");
-                return;
-            }
-
-            factionChangeAchievements.clear();
-
-            int i = 0;
-            do
-            {
-                Field* fields                           = result->Fetch();
-                factionChangeAchievements.push_back(FactionChangeAchievements());
-                factionChangeAchievements[i].AllianceId = fields[0].Get<int32>();
-                factionChangeAchievements[i].HordeId    = fields[1].Get<int32>();
-
-                i++;
-            } while (result->NextRow());
-
-            LOG_INFO("server.loading", ">> Loaded {} account bound faction change achievement templates", i);
         }
 };
 
