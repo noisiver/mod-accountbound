@@ -7,4 +7,4 @@ There is no way to see all mounts that the account has unless the character has 
 
 An addon that helps the user see all their mounts may be developed in the future.
 
-**Companions are not yet implemented**
+**Achievement are planned for the future**
