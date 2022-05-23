@@ -15,13 +15,13 @@ SET
 
 DROP TABLE IF EXISTS `account_bound_mount_template`;
 CREATE TABLE `account_bound_mount_template` (
-    `spellid` int(10) unsigned NOT NULL,
-    `allowablerace` int(10) NOT NULL,
-    `allowableclass` int(10) NOT NULL,
-    `requiredlevel` tinyint(3) unsigned NOT NULL,
-    `requiredskill` smallint(3) unsigned NOT NULL,
-    `requiredskillrank` smallint(3) unsigned NOT NULL,
-    `comment` varchar(255) NOT NULL,
+    `spellid` INT(10) UNSIGNED NOT NULL,
+    `allowablerace` INT(10) NOT NULL,
+    `allowableclass` INT(10) NOT NULL,
+    `requiredlevel` TINYINT(3) UNSIGNED NOT NULL,
+    `requiredskill` SMALLINT(3) UNSIGNED NOT NULL,
+    `requiredskillrank` SMALLINT(3) UNSIGNED NOT NULL,
+    `comment` VARCHAR(255) NOT NULL,
     PRIMARY KEY (`spellid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

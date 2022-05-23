@@ -20,12 +20,45 @@ struct FactionChangeMounts
 std::vector<AccountBoundMounts> accountBoundMounts;
 std::vector<FactionChangeMounts> factionChangeMounts;
 
+struct AccountBoundCompanions
+{
+    uint32 SpellId;
+    uint32 AllowableRace;
+};
+
+struct FactionChangeCompanions
+{
+    uint32 AllianceId;
+    uint32 HordeId;
+};
+
+std::vector<AccountBoundCompanions> accountBoundCompanions;
+std::vector<FactionChangeCompanions> factionChangeCompanions;
+
 class AccountBoundPlayer : public PlayerScript
 {
     public:
         AccountBoundPlayer() : PlayerScript("AccountBound") {}
 
         void OnLearnSpell(Player* player, uint32 spellID) override
+        {
+            SaveAccountBoundMounts(player, spellID);
+            SaveAccountBoundCompanions(player, spellID);
+        }
+
+        void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
+        {
+            LearnAccountBoundMounts(player);
+        }
+
+        void OnLogin(Player* player) override
+        {
+            LearnAccountBoundMounts(player);
+            LearnAccountBoundCompanions(player);
+        }
+
+    private:
+        void SaveAccountBoundMounts(Player* player, uint32 spellID)
         {
             for (auto& accountBoundMount : accountBoundMounts)
             {
@@ -35,7 +68,7 @@ class AccountBoundPlayer : public PlayerScript
                 int factionMountSpellId = GetFactionChangeMount(accountBoundMount.SpellId);
                 if (factionMountSpellId == -1)
                 {
-                    LoginDatabase.DirectExecute("REPLACE INTO account_bound_mount (accountid, spellid, allowablerace, allowableclass, requiredlevel, "
+                    LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (accountid, spellid, allowablerace, allowableclass, requiredlevel, "
                                                 "requiredskill, requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {})",
                                                 player->GetSession()->GetAccountId(),
                                                 spellID,
@@ -47,7 +80,7 @@ class AccountBoundPlayer : public PlayerScript
                     continue;
                 }
 
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_mount (accountid, spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
+                LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (accountid, spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
                                             "requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {}), ({}, {}, {}, {}, {}, {}, {})",
                                             player->GetSession()->GetAccountId(),
                                             factionChangeMounts[factionMountSpellId].AllianceId,
@@ -66,20 +99,9 @@ class AccountBoundPlayer : public PlayerScript
             }
         }
 
-        void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
-        {
-            LearnAccountBoundMounts(player);
-        }
-
-        void OnLogin(Player* player) override
-        {
-            LearnAccountBoundMounts(player);
-        }
-
-    private:
         void LearnAccountBoundMounts(Player* player)
         {
-            QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound_mount WHERE accountid={} AND allowablerace & {} "
+            QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound_mounts WHERE accountid={} AND allowablerace & {} "
                                                      "AND allowableclass & {} AND requiredlevel <= {} AND (requiredskill = 0 OR requiredskillrank <= {})",
                                                      player->GetSession()->GetAccountId(),
                                                      player->getRaceMask(),
@@ -111,6 +133,66 @@ class AccountBoundPlayer : public PlayerScript
 
             return -1;
         }
+
+        void SaveAccountBoundCompanions(Player* player, uint32 spellID)
+        {
+            for (auto& accountBoundCompanion : accountBoundCompanions)
+            {
+                if (accountBoundCompanion.SpellId != spellID)
+                    continue;
+
+                int factionCompanionSpellId = GetFactionChangeCompanion(accountBoundCompanion.SpellId);
+                if (factionCompanionSpellId == -1)
+                {
+                    LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (accountid, spellid, allowablerace)"
+                                                "VALUES ({}, {}, {})",
+                                                player->GetSession()->GetAccountId(),
+                                                spellID,
+                                                accountBoundCompanion.AllowableRace);
+                    continue;
+                }
+
+                LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (accountid, spellid, allowablerace) "
+                                            "VALUES ({}, {}, {}), ({}, {}, {})",
+                                            player->GetSession()->GetAccountId(),
+                                            factionChangeCompanions[factionCompanionSpellId].AllianceId,
+                                            RACEMASK_ALLIANCE,
+                                            player->GetSession()->GetAccountId(),
+                                            factionChangeCompanions[factionCompanionSpellId].HordeId,
+                                            RACEMASK_HORDE);
+            }
+        }
+
+        void LearnAccountBoundCompanions(Player* player)
+        {
+            QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound_companions WHERE accountid={} AND allowablerace & {}",
+                                                     player->GetSession()->GetAccountId(),
+                                                     player->getRaceMask());
+
+            if (!result)
+                return;
+
+            do
+            {
+                Field* fields  = result->Fetch();
+                uint32 spellId = fields[0].Get<uint32>();
+
+                if (!player->HasSpell(spellId))
+                    player->learnSpell(spellId);
+
+            } while (result->NextRow());
+        }
+
+        int GetFactionChangeCompanion(uint32 spellId)
+        {
+            for (size_t i = 0; i != factionChangeCompanions.size(); ++i)
+            {
+                if (factionChangeCompanions[i].AllianceId == spellId || factionChangeCompanions[i].HordeId == spellId)
+                    return i;
+            }
+
+            return -1;
+        }
 };
 
 class AccountBoundWorld : public WorldScript
@@ -122,6 +204,8 @@ class AccountBoundWorld : public WorldScript
         {
             LoadAccountBoundMounts();
             LoadAccountBoundFactionChangeMounts();
+            LoadAccountBoundCompanions();
+            LoadAccountBoundFactionChangeCompanions();
         }
 
     private:
@@ -153,7 +237,7 @@ class AccountBoundWorld : public WorldScript
                 i++;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} account bound spells", i);
+            LOG_INFO("server.loading", ">> Loaded {} account bound mount templates", i);
         }
 
         void LoadAccountBoundFactionChangeMounts()
@@ -163,7 +247,7 @@ class AccountBoundWorld : public WorldScript
 
             if (!result)
             {
-                LOG_INFO("server.loading", ">> Loaded 0 account bound faction spells");
+                LOG_INFO("server.loading", ">> Loaded 0 account bound faction change mount templates");
                 return;
             }
 
@@ -180,7 +264,60 @@ class AccountBoundWorld : public WorldScript
                 i++;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} account bound faction spells", i);
+            LOG_INFO("server.loading", ">> Loaded {} account bound faction change mount templates", i);
+        }
+
+        void LoadAccountBoundCompanions()
+        {
+            QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace FROM account_bound_companion_template");
+
+            if (!result)
+            {
+                LOG_INFO("server.loading", ">> Loaded 0 account bound companion templates");
+                return;
+            }
+
+            accountBoundCompanions.clear();
+
+            int i = 0;
+            do
+            {
+                Field* fields                           = result->Fetch();
+                accountBoundCompanions.push_back(AccountBoundCompanions());
+                accountBoundCompanions[i].SpellId       = fields[0].Get<int32>();
+                accountBoundCompanions[i].AllowableRace = fields[1].Get<int32>();
+
+                i++;
+            } while (result->NextRow());
+
+            LOG_INFO("server.loading", ">> Loaded {} account bound companion templates", i);
+        }
+
+        void LoadAccountBoundFactionChangeCompanions()
+        {
+            QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
+                                                     "account_bound_companion_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
+
+            if (!result)
+            {
+                LOG_INFO("server.loading", ">> Loaded 0 account bound faction change companion templates");
+                return;
+            }
+
+            factionChangeCompanions.clear();
+
+            int i = 0;
+            do
+            {
+                Field* fields                         = result->Fetch();
+                factionChangeCompanions.push_back(FactionChangeCompanions());
+                factionChangeCompanions[i].AllianceId = fields[0].Get<int32>();
+                factionChangeCompanions[i].HordeId    = fields[1].Get<int32>();
+
+                i++;
+            } while (result->NextRow());
+
+            LOG_INFO("server.loading", ">> Loaded {} account bound faction change companion templates", i);
         }
 };
 
