@@ -384,10 +384,24 @@ private:
     }
 };
 
+enum RidingAchievement
+{
+    ACHIEVEMENT_APPRENTICE = 891,
+    ACHIEVEMENT_JOURNEYMAN = 889,
+    ACHIEVEMENT_EXPERT     = 890,
+    ACHIEVEMENT_ARTISAN    = 892
+};
+
 class AccountBoundMounts : public PlayerScript
 {
 public:
     AccountBoundMounts() : PlayerScript("AccountBoundMounts") {}
+
+    void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
+    {
+        if (achievement->ID == ACHIEVEMENT_APPRENTICE || achievement->ID == ACHIEVEMENT_JOURNEYMAN || achievement->ID == ACHIEVEMENT_EXPERT || achievement->ID == ACHIEVEMENT_ARTISAN)
+            LearnMounts(player);
+    }
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
