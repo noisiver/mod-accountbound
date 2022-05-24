@@ -7,6 +7,7 @@ CREATE TABLE `account_bound_achievement_template` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `account_bound_achievement_template` (`id`, `allowablerace`, `comment`) VALUES 
+-- Exploration
 (42, 1791, 'Explore Eastern Kingdoms'),
 (43, 1791, 'Explore Kalimdor'),
 (44, 1791, 'Explore Outland'),
