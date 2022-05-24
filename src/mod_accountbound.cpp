@@ -55,12 +55,14 @@ public:
 
     void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
     {
-        SaveAchievements(player, achievement->ID);
+        if (!player->IsGameMaster())
+            SaveAchievements(player, achievement->ID);
     }
 
     void OnLogin(Player* player) override
     {
-        LoadAchievements(player);
+        if (!player->IsGameMaster())
+            LoadAchievements(player);
     }
 
 private:
@@ -132,12 +134,14 @@ public:
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
-        SaveCompanions(player, spellID);
+        if (!player->IsGameMaster())
+            SaveCompanions(player, spellID);
     }
 
     void OnLogin(Player* player) override
     {
-        LoadCompanions(player);
+        if (!player->IsGameMaster())
+            LoadCompanions(player);
     }
 
 private:
@@ -400,22 +404,26 @@ public:
     void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
     {
         if (achievement->ID == ACHIEVEMENT_APPRENTICE || achievement->ID == ACHIEVEMENT_JOURNEYMAN || achievement->ID == ACHIEVEMENT_EXPERT || achievement->ID == ACHIEVEMENT_ARTISAN)
-            LearnMounts(player);
+            if (!player->IsGameMaster())
+                LearnMounts(player);
     }
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
-        SaveMounts(player, spellID);
+        if (!player->IsGameMaster())
+            SaveMounts(player, spellID);
     }
 
     void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
     {
-        LearnMounts(player);
+        if (!player->IsGameMaster())
+            LearnMounts(player);
     }
 
     void OnLogin(Player* player) override
     {
-        LearnMounts(player);
+        if (!player->IsGameMaster())
+            LearnMounts(player);
     }
 
 private:
