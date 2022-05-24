@@ -93,7 +93,7 @@ INSERT INTO `account_bound_achievement_template` (`id`, `allowablerace`, `commen
 (1680, 690, 'Loremaster of Kalimdor'),
 (1681, 1101, 'The Loremaster'),
 (1682, 690, 'The Loremaster'),
-(2016, 1101, 'Grizzled Veteran');
+(2016, 1101, 'Grizzled Veteran'),
 (2017, 690, 'Grizzled Veteran'),
 -- Player vs Player
 (73, 1791, 'Disgracin\' The Basin'),
