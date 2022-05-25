@@ -545,4 +545,4 @@ INSERT INTO `account_bound_achievement_template` (`id`, `allowablerace`, `commen
 (4520, 1791, 'Heroic: The Pit of Saron'),
 (4521, 1791, 'Heroic: The Halls of Reflection'),
 (4596, 1791, 'The Sword in the Skull'),
-(4624, 1791, 'Tough Love'),
+(4624, 1791, 'Tough Love');
