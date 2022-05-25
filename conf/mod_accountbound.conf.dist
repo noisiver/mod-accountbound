@@ -1,0 +1,16 @@
+[worldserver]
+
+###
+# Make achievements shared across all characters of an account
+AccountBound.Achievements = 1
+###
+
+###
+# Make companions shared across all characters of an account
+AccountBound.Companions = 1
+###
+
+###
+# Make mounts shared shared across all characters of an account
+AccountBound.Mounts = 1
+###

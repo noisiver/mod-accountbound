@@ -1,5 +1,10 @@
+#include "Config.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+
+bool enableAccountAchievements;
+bool enableAccountCompanions;
+bool enableAccountMounts;
 
 struct AccountAchievements
 {
@@ -55,14 +60,16 @@ public:
 
     void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
     {
-        if (!player->IsGameMaster())
-            SaveAchievements(player, achievement->ID);
+        if (enableAccountAchievements)
+            if (!player->IsGameMaster())
+                SaveAchievements(player, achievement->ID);
     }
 
     void OnLogin(Player* player) override
     {
-        if (!player->IsGameMaster())
-            LoadAchievements(player);
+        if (enableAccountAchievements)
+            if (!player->IsGameMaster())
+                LoadAchievements(player);
     }
 
 private:
@@ -134,14 +141,16 @@ public:
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
-        if (!player->IsGameMaster())
-            SaveCompanions(player, spellID);
+        if (enableAccountCompanions)
+            if (!player->IsGameMaster())
+                SaveCompanions(player, spellID);
     }
 
     void OnLogin(Player* player) override
     {
-        if (!player->IsGameMaster())
-            LoadCompanions(player);
+        if (enableAccountCompanions)
+            if (!player->IsGameMaster())
+                LoadCompanions(player);
     }
 
 private:
@@ -211,15 +220,34 @@ class AccountBoundData : public WorldScript
 public:
     AccountBoundData() : WorldScript("AccountBoundData") {}
 
+    void OnAfterConfigLoad(bool /*reload*/) override
+    {
+        enableAccountAchievements = sConfigMgr->GetOption<bool>("AccountBound.Achievements", 1);
+        enableAccountCompanions = sConfigMgr->GetOption<bool>("AccountBound.Companions", 1);
+        enableAccountMounts = sConfigMgr->GetOption<bool>("AccountBound.Mounts", 1);
+    }
+
     void OnStartup() override
     {
         LOG_INFO("server.loading", "Loading account bound templates...");
-        LoadAchievements();
-        LoadFactionSpecificAchievements();
-        LoadCompanions();
-        LoadFactionSpecificCompanions();
-        LoadMounts();
-        LoadFactionSpecificMounts();
+
+        if (enableAccountAchievements)
+        {
+            LoadAchievements();
+            LoadFactionSpecificAchievements();
+        }
+
+        if (enableAccountCompanions)
+        {
+            LoadCompanions();
+            LoadFactionSpecificCompanions();
+        }
+
+        if (enableAccountMounts)
+        {
+            LoadMounts();
+            LoadFactionSpecificMounts();
+        }
     }
 
 private:
@@ -403,27 +431,31 @@ public:
 
     void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
     {
-        if (achievement->ID == ACHIEVEMENT_APPRENTICE || achievement->ID == ACHIEVEMENT_JOURNEYMAN || achievement->ID == ACHIEVEMENT_EXPERT || achievement->ID == ACHIEVEMENT_ARTISAN)
-            if (!player->IsGameMaster())
-                LearnMounts(player);
+        if (enableAccountMounts)
+            if (achievement->ID == ACHIEVEMENT_APPRENTICE || achievement->ID == ACHIEVEMENT_JOURNEYMAN || achievement->ID == ACHIEVEMENT_EXPERT || achievement->ID == ACHIEVEMENT_ARTISAN)
+                if (!player->IsGameMaster())
+                    LearnMounts(player);
     }
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
-        if (!player->IsGameMaster())
-            SaveMounts(player, spellID);
+        if (enableAccountMounts)
+            if (!player->IsGameMaster())
+                SaveMounts(player, spellID);
     }
 
     void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
     {
-        if (!player->IsGameMaster())
-            LearnMounts(player);
+        if (enableAccountMounts)
+            if (!player->IsGameMaster())
+                LearnMounts(player);
     }
 
     void OnLogin(Player* player) override
     {
-        if (!player->IsGameMaster())
-            LearnMounts(player);
+        if (enableAccountMounts)
+            if (!player->IsGameMaster())
+                LearnMounts(player);
     }
 
 private:
