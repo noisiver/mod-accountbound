@@ -279,8 +279,8 @@ private:
 
     void LoadFactionSpecificAchievements()
     {
-        QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
-            "account_bound_achievement_template abt ON pfs.alliance_id = abt.id WHERE abt.allowablerace = 1101");
+        QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement pfa LEFT OUTER JOIN "
+            "account_bound_achievement_template abt ON pfa.alliance_id = abt.id WHERE abt.allowablerace = 1101");
 
         if (!result)
         {
