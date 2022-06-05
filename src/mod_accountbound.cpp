@@ -420,8 +420,8 @@ enum RidingAchievement
 {
     ACHIEVEMENT_APPRENTICE = 891,
     ACHIEVEMENT_JOURNEYMAN = 889,
-    ACHIEVEMENT_EXPERT     = 890,
-    ACHIEVEMENT_ARTISAN    = 892
+    ACHIEVEMENT_EXPERT = 890,
+    ACHIEVEMENT_ARTISAN = 892
 };
 
 class AccountBoundMounts : public PlayerScript
