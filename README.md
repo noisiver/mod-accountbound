@@ -1,8 +1,9 @@
-# Account Bound
+# Warning
 This module has been ported to LUA, used by installing the [Eluna](https://github.com/azerothcore/mod-eluna) module, and will not receive any new features.
 
 The LUA script can be found at [AccountBound](https://github.com/tkn963/lua-accountbound).
 
+# Account Bound
 This module aims to make mounts, companions and achievements shared across all characters of an account.
 
 Mounts and achievements that are specific to Alliance or Horde will be converted to the correct version of the mount or achievement whenever a character receives them.
