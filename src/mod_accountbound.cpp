@@ -2,21 +2,8 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-bool enableAccountAchievements;
 bool enableAccountCompanions;
 bool enableAccountMounts;
-
-struct AccountAchievements
-{
-    uint32 Id;
-    uint32 AllowableRace;
-};
-
-struct FactionSpecificAccountAchievements
-{
-    uint32 AllianceId;
-    uint32 HordeId;
-};
 
 struct AccountCompanions
 {
@@ -46,93 +33,10 @@ struct FactionSpecificAccountMounts
     uint32 HordeId;
 };
 
-std::vector<AccountAchievements> accountAchievements;
-std::vector<FactionSpecificAccountAchievements> factionSpecificAccountAchievements;
 std::vector<AccountCompanions> accountCompanions;
 std::vector<FactionSpecificAccountCompanions> factionSpecificAccountCompanions;
 std::vector<AccountMounts> accountMounts;
 std::vector<FactionSpecificAccountMounts> factionSpecificAccountMounts;
-
-class AccountBoundAchievements : public PlayerScript
-{
-public:
-    AccountBoundAchievements() : PlayerScript("AccountBoundAchievements") {}
-
-    void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
-    {
-        if (enableAccountAchievements)
-            if (!player->IsGameMaster())
-                SaveAchievements(player, achievement->ID);
-    }
-
-    void OnLogin(Player* player) override
-    {
-        if (enableAccountAchievements)
-            if (!player->IsGameMaster())
-                LoadAchievements(player);
-    }
-
-private:
-    int FindFactionSpecificAchievement(uint32 achievementId)
-    {
-        for (size_t i = 0; i != factionSpecificAccountAchievements.size(); ++i)
-        {
-            if (factionSpecificAccountAchievements[i].AllianceId == achievementId || factionSpecificAccountAchievements[i].HordeId == achievementId)
-                return i;
-        }
-
-        return -1;
-    }
-
-    void LoadAchievements(Player* player)
-    {
-        QueryResult result = LoginDatabase.Query("SELECT achievement FROM account_bound_achievements WHERE accountid={} AND allowablerace & {}",
-            player->GetSession()->GetAccountId(),
-            player->getRaceMask());
-
-        if (!result)
-            return;
-
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 achievementId = fields[0].Get<uint32>();
-
-            if (!player->HasAchieved(achievementId))
-                player->CompletedAchievement(sAchievementMgr->GetAchievement(achievementId));
-
-        } while (result->NextRow());
-    }
-
-    void SaveAchievements(Player* player, uint32 achievementId)
-    {
-        for (auto& accountAchievement : accountAchievements)
-        {
-            if (accountAchievement.Id != achievementId)
-                continue;
-
-            int factionSpecificAchievementId = FindFactionSpecificAchievement(accountAchievement.Id);
-            if (factionSpecificAchievementId == -1)
-            {
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_achievements (accountid, achievement, allowablerace)"
-                    "VALUES ({}, {}, {})",
-                    player->GetSession()->GetAccountId(),
-                    achievementId,
-                    accountAchievement.AllowableRace);
-                continue;
-            }
-
-            LoginDatabase.DirectExecute("REPLACE INTO account_bound_achievements (accountid, achievement, allowablerace) "
-                "VALUES ({}, {}, {}), ({}, {}, {})",
-                player->GetSession()->GetAccountId(),
-                factionSpecificAccountAchievements[factionSpecificAchievementId].AllianceId,
-                RACEMASK_ALLIANCE,
-                player->GetSession()->GetAccountId(),
-                factionSpecificAccountAchievements[factionSpecificAchievementId].HordeId,
-                RACEMASK_HORDE);
-        }
-    }
-};
 
 class AccountBoundCompanions : public PlayerScript
 {
@@ -222,7 +126,6 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        enableAccountAchievements = sConfigMgr->GetOption<bool>("AccountBound.Achievements", 1);
         enableAccountCompanions = sConfigMgr->GetOption<bool>("AccountBound.Companions", 1);
         enableAccountMounts = sConfigMgr->GetOption<bool>("AccountBound.Mounts", 1);
     }
@@ -230,12 +133,6 @@ public:
     void OnStartup() override
     {
         LOG_INFO("server.loading", "Loading account bound templates...");
-
-        if (enableAccountAchievements)
-        {
-            LoadAchievements();
-            LoadFactionSpecificAchievements();
-        }
 
         if (enableAccountCompanions)
         {
@@ -251,59 +148,6 @@ public:
     }
 
 private:
-    void LoadAchievements()
-    {
-        QueryResult result = WorldDatabase.Query("SELECT id, allowablerace FROM account_bound_achievement_template");
-
-        if (!result)
-        {
-            LOG_INFO("server.loading", ">> Loaded 0 achievement templates");
-            return;
-        }
-
-        accountAchievements.clear();
-
-        int i = 0;
-        do
-        {
-            accountAchievements.push_back(AccountAchievements());
-            Field* fields = result->Fetch();
-            accountAchievements[i].Id = fields[0].Get<int32>();
-            accountAchievements[i].AllowableRace = fields[1].Get<int32>();
-
-            i++;
-        } while (result->NextRow());
-
-        LOG_INFO("server.loading", ">> Loaded {} achievement templates", i);
-    }
-
-    void LoadFactionSpecificAchievements()
-    {
-        QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement pfa LEFT OUTER JOIN "
-            "account_bound_achievement_template abt ON pfa.alliance_id = abt.id WHERE abt.allowablerace = 1101");
-
-        if (!result)
-        {
-            LOG_INFO("server.loading", ">> Loaded 0 faction-specific achievement templates");
-            return;
-        }
-
-        factionSpecificAccountAchievements.clear();
-
-        int i = 0;
-        do
-        {
-            factionSpecificAccountAchievements.push_back(FactionSpecificAccountAchievements());
-            Field* fields = result->Fetch();
-            factionSpecificAccountAchievements[i].AllianceId = fields[0].Get<int32>();
-            factionSpecificAccountAchievements[i].HordeId = fields[1].Get<int32>();
-
-            i++;
-        } while (result->NextRow());
-
-        LOG_INFO("server.loading", ">> Loaded {} faction-specific achievement templates", i);
-    }
-
     void LoadCompanions()
     {
         QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace FROM account_bound_companion_template");
@@ -538,7 +382,6 @@ private:
 
 void AddSC_mod_accountbound()
 {
-    new AccountBoundAchievements();
     new AccountBoundCompanions();
     new AccountBoundData();
     new AccountBoundMounts();
