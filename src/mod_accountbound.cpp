@@ -2,9 +2,9 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-bool enableGamemasters;
-bool enableAccountCompanions;
-bool enableAccountMounts;
+bool abEnableGamemasters;
+bool abEnableAccountCompanions;
+bool abEnableAccountMounts;
 
 struct AccountCompanions
 {
@@ -46,15 +46,15 @@ public:
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
-        if (enableAccountCompanions)
-            if (player->GetSession()->GetSecurity() == SEC_PLAYER || enableGamemasters)
+        if (abEnableAccountCompanions)
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER || abEnableGamemasters)
                 SaveCompanions(player, spellID);
     }
 
     void OnLogin(Player* player) override
     {
-        if (enableAccountCompanions)
-            if (player->GetSession()->GetSecurity() == SEC_PLAYER || enableGamemasters)
+        if (abEnableAccountCompanions)
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER || abEnableGamemasters)
                 LoadCompanions(player);
     }
 
@@ -127,22 +127,22 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        enableGamemasters = sConfigMgr->GetOption<bool>("AccountBound.Gamemasters", 0);
-        enableAccountCompanions = sConfigMgr->GetOption<bool>("AccountBound.Companions", 1);
-        enableAccountMounts = sConfigMgr->GetOption<bool>("AccountBound.Mounts", 1);
+        abEnableGamemasters = sConfigMgr->GetOption<bool>("AccountBound.Gamemasters", 0);
+        abEnableAccountCompanions = sConfigMgr->GetOption<bool>("AccountBound.Companions", 1);
+        abEnableAccountMounts = sConfigMgr->GetOption<bool>("AccountBound.Mounts", 1);
     }
 
     void OnStartup() override
     {
         LOG_INFO("server.loading", "Loading account bound templates...");
 
-        if (enableAccountCompanions)
+        if (abEnableAccountCompanions)
         {
             LoadCompanions();
             LoadFactionSpecificCompanions();
         }
 
-        if (enableAccountMounts)
+        if (abEnableAccountMounts)
         {
             LoadMounts();
             LoadFactionSpecificMounts();
@@ -277,30 +277,30 @@ public:
 
     void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
     {
-        if (enableAccountMounts)
+        if (abEnableAccountMounts)
             if (achievement->ID == ACHIEVEMENT_APPRENTICE || achievement->ID == ACHIEVEMENT_JOURNEYMAN || achievement->ID == ACHIEVEMENT_EXPERT || achievement->ID == ACHIEVEMENT_ARTISAN)
-                if (player->GetSession()->GetSecurity() == SEC_PLAYER || enableGamemasters)
+                if (player->GetSession()->GetSecurity() == SEC_PLAYER || abEnableGamemasters)
                     LearnMounts(player);
     }
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
-        if (enableAccountMounts)
-            if (player->GetSession()->GetSecurity() == SEC_PLAYER || enableGamemasters)
+        if (abEnableAccountMounts)
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER || abEnableGamemasters)
                 SaveMounts(player, spellID);
     }
 
     void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
     {
-        if (enableAccountMounts)
-            if (player->GetSession()->GetSecurity() == SEC_PLAYER || enableGamemasters)
+        if (abEnableAccountMounts)
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER || abEnableGamemasters)
                 LearnMounts(player);
     }
 
     void OnLogin(Player* player) override
     {
-        if (enableAccountMounts)
-            if (player->GetSession()->GetSecurity() == SEC_PLAYER || enableGamemasters)
+        if (abEnableAccountMounts)
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER || abEnableGamemasters)
                 LearnMounts(player);
     }
 
