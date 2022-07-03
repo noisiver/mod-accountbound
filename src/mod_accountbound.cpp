@@ -46,14 +46,14 @@ public:
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
         if (enableAccountCompanions)
-            if (!player->IsGameMaster())
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER)
                 SaveCompanions(player, spellID);
     }
 
     void OnLogin(Player* player) override
     {
         if (enableAccountCompanions)
-            if (!player->IsGameMaster())
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER)
                 LoadCompanions(player);
     }
 
@@ -277,14 +277,14 @@ public:
     {
         if (enableAccountMounts)
             if (achievement->ID == ACHIEVEMENT_APPRENTICE || achievement->ID == ACHIEVEMENT_JOURNEYMAN || achievement->ID == ACHIEVEMENT_EXPERT || achievement->ID == ACHIEVEMENT_ARTISAN)
-                if (!player->IsGameMaster())
+                if (player->GetSession()->GetSecurity() == SEC_PLAYER)
                     LearnMounts(player);
     }
 
     void OnLearnSpell(Player* player, uint32 spellID) override
     {
         if (enableAccountMounts)
-            if (!player->IsGameMaster())
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER)
                 SaveMounts(player, spellID);
     }
 
@@ -298,7 +298,7 @@ public:
     void OnLogin(Player* player) override
     {
         if (enableAccountMounts)
-            if (!player->IsGameMaster())
+            if (player->GetSession()->GetSecurity() == SEC_PLAYER)
                 LearnMounts(player);
     }
 
