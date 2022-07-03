@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS `account_bound_companion_template`;
 CREATE TABLE `account_bound_companion_template` (
-    `spellid` INT(10) UNSIGNED NOT NULL,
-    `allowablerace` INT(11) NOT NULL,
+    `spell_id` INT(10) UNSIGNED NOT NULL,
+    `allowable_race` INT(11) NOT NULL,
     `comment` VARCHAR(255) NOT NULL,
-    PRIMARY KEY (`spellid`)
+    PRIMARY KEY (`spell_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `account_bound_companion_template` (`spellid`, `allowablerace`, `comment`) VALUES
+INSERT INTO `account_bound_companion_template` (`spell_id`, `allowable_race`, `comment`) VALUES
 (4055, 1791, 'Mechanical Squirrel'),
 (10673, 1791, 'Bombay Cat'),
 (10674, 1791, 'Cornish Rex Cat'),

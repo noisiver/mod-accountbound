@@ -1,16 +1,16 @@
 DROP TABLE IF EXISTS `account_bound_mount_template`;
 CREATE TABLE `account_bound_mount_template` (
-    `spellid` INT(10) UNSIGNED NOT NULL,
-    `allowablerace` INT(11) NOT NULL,
-    `allowableclass` INT(11) NOT NULL,
-    `requiredlevel` TINYINT(3) UNSIGNED NOT NULL,
-    `requiredskill` SMALLINT(3) UNSIGNED NOT NULL,
-    `requiredskillrank` SMALLINT(3) UNSIGNED NOT NULL,
+    `spell_id` INT(10) UNSIGNED NOT NULL,
+    `allowable_race` INT(11) NOT NULL,
+    `allowable_class` INT(11) NOT NULL,
+    `required_level` TINYINT(3) UNSIGNED NOT NULL,
+    `required_skill` SMALLINT(3) UNSIGNED NOT NULL,
+    `required_skill_rank` SMALLINT(3) UNSIGNED NOT NULL,
     `comment` VARCHAR(255) NOT NULL,
-    PRIMARY KEY (`spellid`)
+    PRIMARY KEY (`spell_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `account_bound_mount_template` (`spellid`, `allowablerace`, `allowableclass`, `requiredlevel`, `requiredskill`, `requiredskillrank`, `comment`) VALUES 
+INSERT INTO `account_bound_mount_template` (`spell_id`, `allowable_race`, `allowable_class`, `required_level`, `required_skill`, `required_skill_rank`, `comment`) VALUES 
 (458, 1101, 1535, 20, 762, 75, 'Brown Horse'),
 (470, 1101, 1535, 20, 762, 75, 'Black Stallion'),
 (472, 1101, 1535, 20, 762, 75, 'Pinto'),

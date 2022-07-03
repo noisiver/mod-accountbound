@@ -71,7 +71,7 @@ private:
 
     void LoadCompanions(Player* player)
     {
-        QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound_companions WHERE accountid={} AND allowablerace & {}",
+        QueryResult result = LoginDatabase.Query("SELECT spell_id FROM account_bound_companions WHERE account_id={} AND allowable_race & {}",
             player->GetSession()->GetAccountId(),
             player->getRaceMask());
 
@@ -99,7 +99,7 @@ private:
             int factionCompanionSpellId = FindFactionSpecificCompanion(accountCompanion.SpellId);
             if (factionCompanionSpellId == -1)
             {
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (accountid, spellid, allowablerace)"
+                LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (account_id, spell_id, allowable_race)"
                     "VALUES ({}, {}, {})",
                     player->GetSession()->GetAccountId(),
                     spellID,
@@ -107,7 +107,7 @@ private:
                 continue;
             }
 
-            LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (accountid, spellid, allowablerace) "
+            LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (account_id, spell_id, allowable_race) "
                 "VALUES ({}, {}, {}), ({}, {}, {})",
                 player->GetSession()->GetAccountId(),
                 factionSpecificAccountCompanions[factionCompanionSpellId].AllianceId,
@@ -150,7 +150,7 @@ public:
 private:
     void LoadCompanions()
     {
-        QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace FROM account_bound_companion_template");
+        QueryResult result = WorldDatabase.Query("SELECT spell_id, allowable_race FROM account_bound_companion_template");
 
         if (!result)
         {
@@ -177,7 +177,7 @@ private:
     void LoadFactionSpecificCompanions()
     {
         QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
-            "account_bound_companion_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
+            "account_bound_companion_template abt ON pfs.alliance_id = abt.spell_id WHERE abt.allowable_race = 1101");
 
         if (!result)
         {
@@ -203,8 +203,8 @@ private:
 
     void LoadMounts()
     {
-        QueryResult result = WorldDatabase.Query("SELECT spellid, allowablerace, allowableclass, requiredlevel, "
-            "requiredskill, requiredskillrank FROM account_bound_mount_template");
+        QueryResult result = WorldDatabase.Query("SELECT spell_id, allowable_race, allowable_class, required_level, "
+            "required_skill, required_skill_rank FROM account_bound_mount_template");
 
         if (!result)
         {
@@ -235,7 +235,7 @@ private:
     void LoadFactionSpecificMounts()
     {
         QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
-            "account_bound_mount_template abt ON pfs.alliance_id = abt.spellid WHERE abt.allowablerace = 1101");
+            "account_bound_mount_template abt ON pfs.alliance_id = abt.spell_id WHERE abt.allowable_race = 1101");
 
         if (!result)
         {
@@ -316,8 +316,8 @@ private:
 
     void LearnMounts(Player* player)
     {
-        QueryResult result = LoginDatabase.Query("SELECT spellid FROM account_bound_mounts WHERE accountid={} AND allowablerace & {} "
-            "AND allowableclass & {} AND requiredlevel <= {} AND (requiredskill = 0 OR requiredskillrank <= {})",
+        QueryResult result = LoginDatabase.Query("SELECT spell_id FROM account_bound_mounts WHERE account_id={} AND allowable_race & {} "
+            "AND allowable_class & {} AND required_level <= {} AND (required_skill = 0 OR required_skill_rank <= {})",
             player->GetSession()->GetAccountId(),
             player->getRaceMask(),
             player->getClassMask(),
@@ -348,8 +348,8 @@ private:
             int factionSpecificMountSpellId = FindFactionSpecificMount(mount.SpellId);
             if (factionSpecificMountSpellId == -1)
             {
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (accountid, spellid, allowablerace, allowableclass, requiredlevel, "
-                    "requiredskill, requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {})",
+                LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (account_id, spell_id, allowable_race, allowable_class, required_level, "
+                    "required_skill, required_skill_rank) VALUES ({}, {}, {}, {}, {}, {}, {})",
                     player->GetSession()->GetAccountId(),
                     spellID,
                     mount.AllowableRace,
@@ -360,8 +360,8 @@ private:
                 continue;
             }
 
-            LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (accountid, spellid, allowablerace, allowableclass, requiredlevel, requiredskill, "
-                "requiredskillrank) VALUES ({}, {}, {}, {}, {}, {}, {}), ({}, {}, {}, {}, {}, {}, {})",
+            LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (account_id, spell_id, allowable_race, allowable_class, required_level, required_skill, "
+                "required_skill_rank) VALUES ({}, {}, {}, {}, {}, {}, {}), ({}, {}, {}, {}, {}, {}, {})",
                 player->GetSession()->GetAccountId(),
                 factionSpecificAccountMounts[factionSpecificMountSpellId].AllianceId,
                 RACEMASK_ALLIANCE,
