@@ -1,4 +1,4 @@
-# Account Bound
+# Features
 This module aims to make mounts and companions shared across all characters of an account.
 
 Companions and mounts that are specific to Alliance or Horde will be converted to the correct version of the companion or mount whenever a character receives them.
