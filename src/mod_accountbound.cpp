@@ -152,7 +152,7 @@ public:
 private:
     void LoadCompanions()
     {
-        QueryResult result = WorldDatabase.Query("SELECT spell_id, allowable_race FROM account_bound_companion_template");
+        QueryResult result = LoginDatabase.Query("SELECT spell_id, allowable_race FROM account_bound_companion_template");
 
         if (!result)
         {
@@ -178,7 +178,7 @@ private:
 
     void LoadFactionSpecificCompanions()
     {
-        QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
+        QueryResult result = LoginDatabase.Query("SELECT alliance_id, horde_id FROM account_bound_factionchange_spells pfs LEFT OUTER JOIN "
             "account_bound_companion_template abt ON pfs.alliance_id = abt.spell_id WHERE abt.allowable_race = 1101");
 
         if (!result)
@@ -205,7 +205,7 @@ private:
 
     void LoadMounts()
     {
-        QueryResult result = WorldDatabase.Query("SELECT spell_id, allowable_race, allowable_class, required_level, "
+        QueryResult result = LoginDatabase.Query("SELECT spell_id, allowable_race, allowable_class, required_level, "
             "required_skill, required_skill_rank FROM account_bound_mount_template");
 
         if (!result)
@@ -236,7 +236,7 @@ private:
 
     void LoadFactionSpecificMounts()
     {
-        QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells pfs LEFT OUTER JOIN "
+        QueryResult result = LoginDatabase.Query("SELECT alliance_id, horde_id FROM account_bound_factionchange_spells pfs LEFT OUTER JOIN "
             "account_bound_mount_template abt ON pfs.alliance_id = abt.spell_id WHERE abt.allowable_race = 1101");
 
         if (!result)
