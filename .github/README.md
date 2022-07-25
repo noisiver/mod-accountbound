@@ -1,3 +1,4 @@
+# Account Bound
 [![core-build](https://github.com/tkn963/mod-accountbound/workflows/core-build/badge.svg?branch=master&event=push)](https://github.com/tkn963/mod-accountbound/actions?query=workflow%3Acore-build+branch%3Amaster+event%3Apush)
 
 # Features
