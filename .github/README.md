@@ -2,7 +2,7 @@
 [![core-build](https://github.com/tkn963/mod-accountbound/workflows/core-build/badge.svg?branch=master&event=push)](https://github.com/tkn963/mod-accountbound/actions?query=workflow%3Acore-build+branch%3Amaster+event%3Apush)
 
 # Features
-This module aims to make mounts and companions shared across all characters of an account.
+This module aims to make mounts, companions and heirlooms shared across all characters of an account.
 
 Companions and mounts that are specific to Alliance or Horde will be converted to the correct version of the companion or mount whenever a character receives them.
 
