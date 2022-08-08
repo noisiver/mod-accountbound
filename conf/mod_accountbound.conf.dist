@@ -11,6 +11,12 @@ AccountBound.Companions = 1
 ###
 
 ###
+# Make heirlooms shared across all characters of an account
+# This requires the included creature to be spawned
+AccountBound.Heirlooms = 0
+###
+
+###
 # Make mounts shared shared across all characters of an account
 AccountBound.Mounts = 1
 ###

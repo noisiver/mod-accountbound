@@ -1,9 +1,12 @@
+#include "Chat.h"
 #include "Config.h"
 #include "Player.h"
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 
 bool abEnableGamemasters;
 bool abEnableAccountCompanions;
+bool abEnableAccountHeirlooms;
 bool abEnableAccountMounts;
 
 struct AccountCompanions
@@ -129,6 +132,7 @@ public:
     {
         abEnableGamemasters = sConfigMgr->GetOption<bool>("AccountBound.Gamemasters", 0);
         abEnableAccountCompanions = sConfigMgr->GetOption<bool>("AccountBound.Companions", 1);
+        abEnableAccountHeirlooms = sConfigMgr->GetOption<bool>("AccountBound.Heirlooms", 0);
         abEnableAccountMounts = sConfigMgr->GetOption<bool>("AccountBound.Mounts", 1);
     }
 
@@ -262,6 +266,80 @@ private:
     }
 };
 
+class AccountBoundHeirlooms : public PlayerScript
+{
+public:
+    AccountBoundHeirlooms() : PlayerScript("AccountBoundHeirlooms") {}
+
+    void OnAfterStoreOrEquipNewItem(Player* player, uint32 /*vendorslot*/, Item* item, uint8 /*count*/, uint8 /*bag*/, uint8 /*slot*/, ItemTemplate const* /*pProto*/, Creature* /*pVendor*/, VendorItem const* /*crItem*/, bool /*bStore*/) override
+    {
+        if (!item || !item->GetTemplate() || !abEnableAccountHeirlooms)
+            return;
+
+        if (item->GetTemplate()->Quality == ITEM_QUALITY_HEIRLOOM && item->GetEntry() != 49177)
+        {
+            SaveHeirlooms(player, item->GetEntry());
+            item->SetNotRefundable(player);
+        }
+    }
+
+private:
+    void SaveHeirlooms(Player* player, uint32 itemId)
+    {
+        LoginDatabase.DirectExecute("REPLACE INTO account_bound_heirlooms (account_id, item_id) "
+            "VALUES ({}, {})",
+            player->GetSession()->GetAccountId(),
+            itemId);
+    }
+};
+
+class AccountBoundHeirloomHoarder : CreatureScript
+{
+public:
+    AccountBoundHeirloomHoarder() : CreatureScript("npc_account_bound_heirlooms") {}
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (!abEnableAccountHeirlooms)
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("This feature is currently disabled.");
+            CloseGossipMenuFor(player);
+            return true;
+        }
+
+        QueryResult result = LoginDatabase.Query("SELECT item_id FROM account_bound_heirlooms WHERE account_id = {}",
+            player->GetSession()->GetAccountId());
+
+        if (!result)
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("You don't have any stored heirlooms.");
+            CloseGossipMenuFor(player);
+            return true;
+        }
+
+        uint32 vendorId = 7500000 + player->GetSession()->GetAccountId();
+
+        if (const VendorItemData* vendorData = sObjectMgr->GetNpcVendorItemList(vendorId))
+        {
+            uint8 vendorItemCount = vendorData->GetItemCount();
+            for (int i = 0; i < vendorItemCount; i++)
+            {
+                sObjectMgr->RemoveVendorItem(vendorId, vendorData->GetItem(i)->item);
+            }
+        }
+
+        do
+        {
+            Field* fields = result->Fetch();
+            sObjectMgr->AddVendorItem(vendorId, fields[0].Get<uint32>(), 0, 0, 0, false);
+        } while (result->NextRow());
+
+        player->GetSession()->SendListInventory(creature->GetGUID(), vendorId);
+
+        return true;
+    }
+};
+
 enum RidingAchievement
 {
     ACHIEVEMENT_APPRENTICE = 891,
@@ -386,5 +464,7 @@ void AddSC_mod_accountbound()
 {
     new AccountBoundCompanions();
     new AccountBoundData();
+    new AccountBoundHeirlooms();
+    new AccountBoundHeirloomHoarder();
     new AccountBoundMounts();
 }
