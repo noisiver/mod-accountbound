@@ -20,3 +20,10 @@ AccountBound.Heirlooms = 0
 # Make mounts shared shared across all characters of an account
 AccountBound.Mounts = 1
 ###
+
+###
+# Allow accounts to be linked together and share the same mounts, companions and heirlooms
+# Note: Accounts have to be added to the account_bound_linked_accounts table for this to take effect
+# Warning: This is very experimental and may add items to an account that shouldn't have it. That is why it's not enabled by default, it does need a lot of testing!
+AccountBound.LinkedAccounts = 0
+###
