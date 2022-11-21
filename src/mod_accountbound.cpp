@@ -119,7 +119,7 @@ private:
             int factionCompanionSpellId = FindFactionSpecificCompanion(accountCompanion.SpellId);
             if (factionCompanionSpellId == -1)
             {
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (account_id, spell_id, allowable_race)"
+                LoginDatabase.Execute("REPLACE INTO account_bound_companions (account_id, spell_id, allowable_race)"
                     "VALUES ({}, {}, {})",
                     player->GetSession()->GetAccountId(),
                     spellID,
@@ -127,7 +127,7 @@ private:
                 continue;
             }
 
-            LoginDatabase.DirectExecute("REPLACE INTO account_bound_companions (account_id, spell_id, allowable_race) "
+            LoginDatabase.Execute("REPLACE INTO account_bound_companions (account_id, spell_id, allowable_race) "
                 "VALUES ({}, {}, {}), ({}, {}, {})",
                 player->GetSession()->GetAccountId(),
                 factionSpecificAccountCompanions[factionCompanionSpellId].AllianceId,
@@ -303,7 +303,7 @@ public:
 private:
     void SaveHeirlooms(Player* player, uint32 itemId)
     {
-        LoginDatabase.DirectExecute("REPLACE INTO account_bound_heirlooms (account_id, item_id) "
+        LoginDatabase.Execute("REPLACE INTO account_bound_heirlooms (account_id, item_id) "
             "VALUES ({}, {})",
             player->GetSession()->GetAccountId(),
             itemId);
@@ -477,7 +477,7 @@ private:
             int factionSpecificMountSpellId = FindFactionSpecificMount(mount.SpellId);
             if (factionSpecificMountSpellId == -1)
             {
-                LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (account_id, spell_id, allowable_race, allowable_class, required_level, "
+                LoginDatabase.Execute("REPLACE INTO account_bound_mounts (account_id, spell_id, allowable_race, allowable_class, required_level, "
                     "required_skill, required_skill_rank) VALUES ({}, {}, {}, {}, {}, {}, {})",
                     player->GetSession()->GetAccountId(),
                     spellID,
@@ -489,7 +489,7 @@ private:
                 continue;
             }
 
-            LoginDatabase.DirectExecute("REPLACE INTO account_bound_mounts (account_id, spell_id, allowable_race, allowable_class, required_level, required_skill, "
+            LoginDatabase.Execute("REPLACE INTO account_bound_mounts (account_id, spell_id, allowable_race, allowable_class, required_level, required_skill, "
                 "required_skill_rank) VALUES ({}, {}, {}, {}, {}, {}, {}), ({}, {}, {}, {}, {}, {}, {})",
                 player->GetSession()->GetAccountId(),
                 factionSpecificAccountMounts[factionSpecificMountSpellId].AllianceId,
