@@ -439,7 +439,7 @@ private:
                 player->GetSession()->GetAccountId(),
                 player->getRaceMask(),
                 player->getClassMask(),
-                player->getLevel(),
+                player->GetLevel(),
                 player->GetSkillValue(SKILL_RIDING));
         }
         else
@@ -449,7 +449,7 @@ private:
                 player->GetSession()->GetAccountId(),
                 player->getRaceMask(),
                 player->getClassMask(),
-                player->getLevel(),
+                player->GetLevel(),
                 player->GetSkillValue(SKILL_RIDING));
         }
 
