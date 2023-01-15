@@ -10,7 +10,7 @@ SET
 @NPCFlag  := 129,
 @Rank     := 0,
 @Type     := 7,
-@Script   := "npc_account_bound_heirlooms";
+@Script   := "npc_heirloom_hoarder";
 
 -- Creature template
 DELETE FROM `creature_template` WHERE `entry`=@Entry;
