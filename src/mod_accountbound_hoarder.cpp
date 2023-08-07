@@ -25,19 +25,13 @@ bool AccountBound::OnGossipHello(Player* player, Creature* creature)
 
     uint32 vendorId = 7500000 + player->GetSession()->GetAccountId();
 
-    if (const VendorItemData* vendorData = sObjectMgr->GetNpcVendorItemList(vendorId))
-    {
-        uint8 vendorItemCount = vendorData->GetItemCount();
-        for (int i = 0; i < vendorItemCount; i++)
-        {
-            sObjectMgr->RemoveVendorItem(vendorId, vendorData->GetItem(i)->item);
-        }
-    }
-
     do
     {
         Field* fields = result->Fetch();
-        sObjectMgr->AddVendorItem(vendorId, fields[0].Get<uint32>(), 0, 0, 0, false);
+        uint32 itemId = fields[0].Get<uint32>();
+
+        sObjectMgr->RemoveVendorItem(vendorId, itemId);
+        sObjectMgr->AddVendorItem(vendorId, itemId, 0, 0, 0, false);
     } while (result->NextRow());
 
     player->GetSession()->SendListInventory(creature->GetGUID(), vendorId);
