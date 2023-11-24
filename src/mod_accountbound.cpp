@@ -1,5 +1,3 @@
-#include "Player.h"
-
 #include "mod_accountbound.h"
 
 AccountBound::AccountBound() : CreatureScript("npc_heirloom_hoarder"), PlayerScript("AccountBoundPlayerScript"), WorldScript("AccountBoundWorldScript") {}

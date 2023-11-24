@@ -1,12 +1,8 @@
-#include "Chat.h"
-#include "Player.h"
-#include "ScriptedGossip.h"
-
 #include "mod_accountbound.h"
 
 bool AccountBound::OnGossipHello(Player* player, Creature* creature)
 {
-    if (!EnableAccountHeirlooms)
+    if (!EnableHeirlooms)
     {
         ChatHandler(player->GetSession()).PSendSysMessage("This feature is currently disabled.");
         CloseGossipMenuFor(player);
