@@ -60,7 +60,9 @@ void AccountBound::SaveCompanions(Player* player)
     for (auto& companion : companions)
     {
         if (!player->HasSpell(companion.SpellId))
+        {
             continue;
+        }
 
         data.append(Acore::StringFormat("(%i, %i, %i),", player->GetSession()->GetAccountId(), companion.SpellId, companion.AllowableRace));
 
@@ -87,7 +89,9 @@ void AccountBound::LearnCompanions(Player* player)
         player->getRaceMask());
 
     if (!result)
+    {
         return;
+    }
 
     do
     {
@@ -95,7 +99,9 @@ void AccountBound::LearnCompanions(Player* player)
         uint32 spell_id = fields[0].Get<uint32>();
 
         if (!player->HasSpell(spell_id))
+        {
             player->learnSpell(spell_id);
+        }
     } while (result->NextRow());
 }
 
@@ -104,7 +110,9 @@ uint32 AccountBound::GetFactionSpecificCompanionId(uint32 spell_id)
     for (auto& companion : factionSpecificCompanions)
     {
         if (companion.AllianceId != spell_id && companion.HordeId != spell_id)
+        {
             continue;
+        }
 
         if (companion.AllianceId == spell_id)
         {

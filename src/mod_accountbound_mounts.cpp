@@ -65,7 +65,9 @@ void AccountBound::SaveMounts(Player* player)
     for (auto& mount : mounts)
     {
         if (!player->HasSpell(mount.SpellId))
+        {
             continue;
+        }
 
         data.append(Acore::StringFormat("(%i, %i, %i, %i, %i, %i, %i),", player->GetSession()->GetAccountId(), mount.SpellId, mount.AllowableRace, mount.AllowableClass, mount.RequiredLevel, mount.RequiredSkill, mount.RequiredSkillRank));
 
@@ -97,7 +99,9 @@ void AccountBound::LearnMounts(Player* player)
         player->GetSkillValue(SKILL_RIDING));
 
     if (!result)
+    {
         return;
+    }
 
     do
     {
@@ -105,7 +109,9 @@ void AccountBound::LearnMounts(Player* player)
         uint32 spell_id = fields[0].Get<uint32>();
 
         if (!player->HasSpell(spell_id))
+        {
             player->learnSpell(spell_id);
+        }
     } while (result->NextRow());
 }
 
@@ -114,7 +120,9 @@ uint32 AccountBound::GetFactionSpecificMountId(uint32 spell_id)
     for (auto& mount : factionSpecificMounts)
     {
         if (mount.AllianceId != spell_id && mount.HordeId != spell_id)
+        {
             continue;
+        }
 
         if (mount.AllianceId == spell_id)
         {
