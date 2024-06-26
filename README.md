@@ -1,5 +1,3 @@
-[![core-build](https://github.com/noisiver/mod-accountbound/actions/workflows/core-build.yml/badge.svg)](https://github.com/noisiver/mod-accountbound/actions/workflows/core-build.yml)
-
 # Features
 This module aims to make mounts, companions and heirlooms shared across all characters of an account.
 
