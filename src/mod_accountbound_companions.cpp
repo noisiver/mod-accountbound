@@ -64,12 +64,12 @@ void AccountBound::SaveCompanions(Player* player)
             continue;
         }
 
-        data.append(Acore::StringFormat("(%i, %i, %i),", player->GetSession()->GetAccountId(), companion.SpellId, companion.AllowableRace));
+        data.append(Acore::StringFormat("({}, {}, {}),", player->GetSession()->GetAccountId(), companion.SpellId, companion.AllowableRace));
 
         uint32 factionSpecificSpellId = GetFactionSpecificCompanionId(companion.SpellId);
         if (factionSpecificSpellId > 0)
         {
-            data.append(Acore::StringFormat("(%i, %i, %i),", player->GetSession()->GetAccountId(), factionSpecificSpellId, companion.AllowableRace == 690 ? 1101 : 690));
+            data.append(Acore::StringFormat("({}, {}, {}),", player->GetSession()->GetAccountId(), factionSpecificSpellId, companion.AllowableRace == 690 ? 1101 : 690));
         }
     }
 

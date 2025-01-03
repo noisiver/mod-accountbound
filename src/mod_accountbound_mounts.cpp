@@ -69,12 +69,12 @@ void AccountBound::SaveMounts(Player* player)
             continue;
         }
 
-        data.append(Acore::StringFormat("(%i, %i, %i, %i, %i, %i, %i),", player->GetSession()->GetAccountId(), mount.SpellId, mount.AllowableRace, mount.AllowableClass, mount.RequiredLevel, mount.RequiredSkill, mount.RequiredSkillRank));
+        data.append(Acore::StringFormat("({}, {}, {}, {}, {}, {}, {}),", player->GetSession()->GetAccountId(), mount.SpellId, mount.AllowableRace, mount.AllowableClass, mount.RequiredLevel, mount.RequiredSkill, mount.RequiredSkillRank));
 
         uint32 factionSpecificSpellId = GetFactionSpecificMountId(mount.SpellId);
         if (factionSpecificSpellId > 0)
         {
-            data.append(Acore::StringFormat("(%i, %i, %i, %i, %i, %i, %i),", player->GetSession()->GetAccountId(), factionSpecificSpellId, mount.AllowableRace == 690 ? 1101 : 690, mount.AllowableClass, mount.RequiredLevel, mount.RequiredSkill, mount.RequiredSkillRank));
+            data.append(Acore::StringFormat("({}, {}, {}, {}, {}, {}, {}),", player->GetSession()->GetAccountId(), factionSpecificSpellId, mount.AllowableRace == 690 ? 1101 : 690, mount.AllowableClass, mount.RequiredLevel, mount.RequiredSkill, mount.RequiredSkillRank));
         }
     }
 
